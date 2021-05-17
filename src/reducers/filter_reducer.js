@@ -62,10 +62,66 @@ const filter_reducer = (state, action) => {
     return { ...state, filters: { ...state.filters, [name]: value } }
   }
   if (action.type === FILTER_PRODUCTS) {
-    console.log('filtering products')
-    return { ...state }
-  }
+    const { all_products } = state;
+    const { text, category, company, color, price, shipping
+    } = state.filters
 
+    let tempProducts = [...all_products];
+    //filtering
+
+    //filtering by text
+    if (text) {
+      tempProducts = tempProducts.filter((product) => {
+        return product.name.toLowerCase().startsWith(text)
+      })
+    }
+
+    //filtering by category
+    if (category !== 'all') {
+      tempProducts = tempProducts
+        .filter((c) => c.category === category)
+    }
+
+    //by company
+    if (company !== 'all') {
+      tempProducts = tempProducts
+        .filter((c) => c.company === company)
+    }
+
+    //by color
+    if (color !== 'all') {
+      tempProducts = tempProducts
+        .filter((c) => {
+          return c.colors.find((c) => c === color)
+        })
+    }
+
+    //by price
+    tempProducts = tempProducts
+      .filter((product) => product.price <= price)
+
+    //by shipping
+    if (shipping) {
+      tempProducts = tempProducts
+        .filter((c) => c.shipping === true)
+    }
+
+    return { ...state, filtered_products: tempProducts }
+  }
+  if (action.type === CLEAR_FILTERS) {
+    return {
+      ...state,
+      filters: {
+        ...state.filters,
+        text: '',
+        company: 'all',
+        category: 'all',
+        color: 'all',
+        price: state.filters.max_price,
+        shipping: false,
+      }
+    }
+  }
   throw new Error(`No Matching "${action.type}" - action type`)
 }
 
